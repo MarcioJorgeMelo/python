@@ -2,6 +2,14 @@ import tkinter as tk
 from tkinter import ttk
 import re
 
+# ---- Participantes ---- #
+# Israel Moura Sturaro - 202309495449
+# 
+# Márcio Jorge Medeiros Melo Filho - 202309795892
+#
+# Ankinam Domingos Leão da Mata - 201903113121
+
+
 class App(tk.Tk):
 
     def __init__(self):
@@ -132,20 +140,19 @@ class App(tk.Tk):
     #Metodos
     def calcularImposto(self, valor, quantidade):
         
-        valor_float = float(valor.replace(',', '.'))
-        quantidade_int = int(quantidade)
-        valor_imp = valor_float * quantidade_int * 0.15
-        valor_total_com_imposto = valor_float * quantidade_int + valor_imp
-        return valor_total_com_imposto
+        valorFloat = float(valor.replace(',', '.'))
+        quantidadeInt = int(quantidade)
+        valorImp = valorFloat * quantidadeInt * 0.15
+        valorTotalComImposto = valorFloat * quantidadeInt + valorImp
+        return valorTotalComImposto
     
     def btnCadastrar_click(self):
         nome = self.varNome.get().strip()
         valor = self.varValor.get().strip()
         quantidade = self.varQuantidade.get().strip()
         
-        reNome = re.fullmatch(r"\b[\w.%+\-\s]+\b", nome, flags=re.UNICODE)
-        
-        
+        reNome = re.fullmatch(r"\b[a-zA-Z\sÀ-ÖØ-öø-ÿ]+\b", nome, flags=re.UNICODE)
+    
         if nome.strip() == "":
             self.varResultado.set("O campo nome é obrigatório.")
             self.lblResultado.configure(background="#FF9999")
@@ -158,8 +165,8 @@ class App(tk.Tk):
             return
         
         try:
-            valor_float = float(valor.replace(',', '.'))
-            if valor_float <= 0:
+            valorFloat = float(valor.replace(',', '.'))
+            if valorFloat <= 0:
                 raise ValueError("O valor deve ser maior que zero")
         except ValueError:
             self.varResultado.set("Insira um valor válido")
@@ -168,8 +175,8 @@ class App(tk.Tk):
             return
         
         try:
-            quantidade_int = int(quantidade)
-            if quantidade_int <= 0:
+            quantidadeInt = int(quantidade)
+            if quantidadeInt <= 0:
                 raise ValueError("A quantidade deve ser maior que zero")
         except ValueError:
             self.varResultado.set("Insira uma quantidade válida")
@@ -177,13 +184,21 @@ class App(tk.Tk):
             self.txtQuantidade.focus()
             return
         
-        valor_total_com_imposto = self.calcularImposto(valor, quantidade)
+        valorTotalComImposto = self.calcularImposto(valor, quantidade)
         
-        produtoCadastrado = [self.varNome.get(), valor, quantidade, valor_total_com_imposto]
+        '''produtoCadastrado = [self.varNome.get(), valor, quantidade, valorTotalComImposto]
         listaProdutos = []
         listaProdutos.append(produtoCadastrado)
         for produtos in listaProdutos:
-            self.txtLista.insert('', tk.END, values=produtos)
+            self.txtLista.insert('', tk.END, values = produtos)'''
+            
+        produtoCadastrado = {
+            "nome": self.varNome.get(),
+            "valor": valor,
+            "quantidade": quantidade,
+            "valorTotalComImposto": valorTotalComImposto
+        }
+        self.txtLista.insert('', tk.END, values=(produtoCadastrado["nome"], produtoCadastrado["valor"], produtoCadastrado["quantidade"], produtoCadastrado["valorTotalComImposto"]))
         self.varResultado.set("O cadastro foi realizado com sucesso!")
         self.lblResultado.configure(background="#71E964")
         self.after(1000, self.limparMensagem)
@@ -209,10 +224,10 @@ class App(tk.Tk):
             return
             
     def btnExcluir_Click(self):
-        item_selecionado = self.txtLista.selection()
+        itemSelecionado = self.txtLista.selection()
        
-        if item_selecionado:
-            self.txtLista.delete(item_selecionado)
+        if itemSelecionado:
+            self.txtLista.delete(itemSelecionado)
             self.varNome.set("")
             self.varValor.set("")
             self.varQuantidade.set("")
@@ -222,16 +237,16 @@ class App(tk.Tk):
             self.after(1000, self.limparMensagem)
 
     def btnEditar_Click(self):
-        item_selecionado = self.txtLista.selection()
+        itemSelecionado = self.txtLista.selection()
         try:
-            if item_selecionado:
-                valores = self.txtLista.item(item_selecionado)['values']
+            if itemSelecionado:
+                valores = self.txtLista.item(itemSelecionado)['values']
                 valores[0] = self.varNome.get()
                 valores[1] = self.varValor.get()
                 valores[2] = self.varQuantidade.get()
                 valores[3] = self.calcularImposto(valores[1], valores[2])
                 
-                self.txtLista.item(item_selecionado, values=valores)
+                self.txtLista.item(itemSelecionado, values=valores)
                 self.varNome.set("")
                 self.varValor.set("")
                 self.varQuantidade.set("")
